@@ -1,3 +1,4 @@
+
 'use server';
 
 import { z } from 'zod';
@@ -154,6 +155,105 @@ export async function deleteReview(widgetId: string, reviewId: string) {
   }
 }
 
+// Schema for a single review in the bulk import
+const ImportReviewSchema = z.object({
+  User: z.string().min(1, 'User name cannot be empty.'),
+  Rate: z.coerce.number().min(1, 'Rate must be between 1 and 5.').max(5, 'Rate must be between 1 and 5.'),
+  commentary: z.string().min(1, 'Commentary cannot be empty.'),
+});
+
+// Schema for the entire import form
+const ImportReviewsSchema = z.object({
+  widgetId: z.string().min(1, 'Please select a widget.'),
+  source: z.string().min(1, 'Source cannot be empty.'),
+  reviewsJson: z.string().min(1, 'JSON content cannot be empty.'),
+});
+
+export type ImportState = {
+  errors?: {
+    widgetId?: string[];
+    source?: string[];
+    reviewsJson?: string[];
+  };
+  message?: string | null;
+  success?: boolean;
+};
+
+export async function importReviews(prevState: ImportState, formData: FormData): Promise<ImportState> {
+  // 1. Validate form fields
+  const validatedFields = ImportReviewsSchema.safeParse({
+    widgetId: formData.get('widgetId'),
+    source: formData.get('source'),
+    reviewsJson: formData.get('reviewsJson'),
+  });
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Failed to import. Please check the form fields.',
+      success: false,
+    };
+  }
+
+  const { widgetId, source, reviewsJson } = validatedFields.data;
+
+  // 2. Parse and validate JSON content
+  let reviewsToImport;
+  try {
+    reviewsToImport = JSON.parse(reviewsJson);
+    if (!Array.isArray(reviewsToImport)) {
+      throw new Error();
+    }
+  } catch (e) {
+    return {
+      errors: { reviewsJson: ['Invalid JSON format. Please provide a valid JSON array.'] },
+      message: 'Invalid JSON format.',
+      success: false,
+    };
+  }
+
+  const validatedReviews = z.array(ImportReviewSchema).safeParse(reviewsToImport);
+  if (!validatedReviews.success) {
+    return {
+      errors: { reviewsJson: ['The JSON array contains items with an invalid structure.'] },
+      message: 'One or more reviews in the JSON have an invalid structure. ' + validatedReviews.error.issues.map(i => i.path.join('.') + ': ' + i.message).join('; '),
+      success: false,
+    };
+  }
+
+  try {
+    await dbConnect();
+    const widget = await Widget.findById(widgetId);
+
+    if (!widget) {
+      return { message: 'Target widget not found.', success: false };
+    }
+
+    const newReviews = validatedReviews.data.map(review => ({
+      name: review.User,
+      stars: review.Rate,
+      text: review.commentary,
+      source: source,
+      createdAt: new Date(),
+    }));
+
+    widget.reviews.push(...newReviews);
+    await widget.save();
+    
+    revalidatePath('/dashboard');
+    revalidatePath(`/widget/${widgetId}`);
+    
+    return { 
+      message: `Successfully imported ${newReviews.length} reviews to "${widget.businessName}".`,
+      success: true,
+    };
+
+  } catch (error) {
+    console.error(error);
+    return { message: 'Database Error: Failed to import reviews.', success: false };
+  }
+}
+
 
 export async function authenticate(prevState: any, formData: FormData) {
   await dbConnect();
@@ -170,7 +270,7 @@ export async function authenticate(prevState: any, formData: FormData) {
     return { message: 'Invalid credentials.' };
   }
 
-  // Aquí puedes generar la sesión y redirigir al dashboard
-  // Por ejemplo, usando tu función encrypt y cookies
+  // Here you can generate the session and redirect to the dashboard
+  // For example, using your encrypt and cookies function
   return { message: 'Login successful.' };
 }
