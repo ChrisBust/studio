@@ -63,7 +63,11 @@
                 return ((t) => new o("string" == typeof t ? t : t + "", void 0, i))(e);
               })(t)
             : t;
-  var n, l;
+  /**
+   * @license
+   * Copyright 2017 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   */ var n, l;
   const d = globalThis,
     h = d.trustedTypes,
     c = h ? h.emptyScript : "",
@@ -283,6 +287,8 @@
               ? void 0
               : e.call(t);
           });
+          this.widgetId = this.getAttribute('widgetId');
+          this.fetchReviews();
     }
     enableUpdating(t) {}
     disconnectedCallback() {
@@ -452,7 +458,11 @@
       ? l
       : (d.reactiveElementVersions = [])
     ).push("2.0.4");
-  var w;
+  /**
+   * @license
+   * Copyright 2017 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   */ var w;
   const b = globalThis,
     x = b.trustedTypes,
     y = x ? x.createPolicy("lit-html", { createHTML: (t) => t }) : void 0,
@@ -903,7 +913,11 @@
       ? w
       : (b.litHtmlVersions = [])
     ).push("3.1.2");
-  var it, st;
+  /**
+   * @license
+   * Copyright 2017 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   */ var it, st;
   class ot extends v {
     constructor() {
       super(...arguments),
@@ -990,7 +1004,6 @@
           --w-accent: 333.3 83.3% 57.8%;
           --w-accent-foreground: 0 0% 98%;
           --w-border: 240 3.7% 15.9%;
-          --w-input: 240 3.7% 15.9%;
           --w-radius: 0.8rem;
           display: block;
         }
@@ -1009,11 +1022,11 @@
         .hover\\:underline:hover { text-decoration-line: underline; }
         .grid { display: grid; }
         .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
-        .md\\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        @media (min-width: 768px) { .md\\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
         .gap-6 { gap: 1.5rem; }
         .mb-8 { margin-bottom: 2rem; }
         .card { border-radius: var(--w-radius); border: 1px solid hsl(var(--w-border)); background-color: hsl(var(--w-card)); color: hsl(var(--w-card-foreground)); box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06); }
-        .md\\:col-span-1 { grid-column: span 1 / span 1; }
+        @media (min-width: 768px) { .md\\:col-span-1 { grid-column: span 1 / span 1; } }
         .flex { display: flex; }
         .flex-col { flex-direction: column; }
         .items-center { align-items: center; }
@@ -1023,7 +1036,7 @@
         .text-5xl { font-size: 3rem; line-height: 1; }
         .text-muted-foreground { color: hsl(var(--w-muted-foreground)); }
         .mt-2 { margin-top: 0.5rem; }
-        .md\\:col-span-2 { grid-column: span 2 / span 2; }
+        @media (min-width: 768px) { .md\\:col-span-2 { grid-column: span 2 / span 2; } }
         .font-semibold { font-weight: 600; }
         .mb-3 { margin-bottom: 0.75rem; }
         .space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.5rem; }
@@ -1035,16 +1048,25 @@
         .w-4 { width: 1rem; }
         .text-accent { color: hsl(var(--w-accent)); }
         .progress { position: relative; height: 0.5rem; width: 100%; overflow: hidden; border-radius: 9999px; background-color: hsl(var(--w-secondary)); }
-        .progress-indicator { height: 100%; width: 100%; flex: 1 1 0%; background-color: hsl(var(--w-primary)); transition: transform 0.2s ease-in-out; }
+        .progress-indicator { height: 100%; width: 100%; flex: 1 1 0%; background-color: hsl(var(--w-primary)); transition: all .2s ease-in-out; }
         .w-full { width: 100%; }
         .h-2 { height: 0.5rem; }
         .w-8 { width: 2rem; }
         .mb-4 { margin-bottom: 1rem; }
-        .mt-4 { margin-top: 1rem; }
         .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
         .justify-between { justify-content: space-between; }
         .button { display: inline-flex; align-items: center; justify-content: center; border-radius: calc(var(--w-radius) - 2px); font-size: 0.875rem; font-weight: 500; height: 2.5rem; padding-left: 1rem; padding-right: 1rem; background-color: hsl(var(--w-primary)); color: hsl(var(--w-primary-foreground)); cursor: pointer; border: none; }
-        .button:hover { background-color: hsla(var(--w-primary)/0.9); }
+        .button:hover { background-color: hsl(var(--w-primary)/0.9); }
+        .p-1 { padding: 0.25rem; }
+        .h-full { height: 100%; }
+        .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: 1rem; }
+        .gap-3 { gap: 0.75rem; }
+        .avatar { position: relative; display: flex; height: 2.5rem; width: 2.5rem; flex-shrink: 0; overflow: hidden; border-radius: 9999px; }
+        .avatar-img { aspect-ratio: 1/1; height: 100%; width: 100%; }
+        .avatar-fallback { display: flex; height: 100%; width: 100%; align-items: center; justify-content: center; border-radius: 9999px; background-color: hsl(var(--w-muted)); }
+        .text-xs { font-size: 0.75rem; line-height: 1rem; }
+        .text-foreground\\/80 { color: hsla(var(--w-foreground)/0.8); }
+        .pt-2 { padding-top: 0.5rem; }
         .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border-width: 0; }
         .border-2 { border-width: 2px; }
         .border-dashed { border-style: dashed; }
@@ -1054,35 +1076,10 @@
         .h-12 { height: 3rem; }
         .w-12 { width: 3rem; }
         .mt-12 { margin-top: 3rem; }
-        
-        /* Carousel */
-        .carousel { position: relative; width: 100%; }
-        .carousel-content { display: flex; margin-left: -0.25rem; }
-        .carousel-item { min-width: 0; flex-shrink: 0; flex-grow: 0; flex-basis: 100%; padding-left: 0.25rem; }
-        @media (min-width: 768px) { .carousel-item { flex-basis: 50%; } }
-        @media (min-width: 1024px) { .carousel-item { flex-basis: 33.333333%; } }
-        .p-1 { padding: 0.25rem; }
-        .h-full { height: 100%; }
-        .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: 1rem; }
-        .gap-3 { gap: 0.75rem; }
-        .avatar { position: relative; display: flex; height: 2.5rem; width: 2.5rem; flex-shrink: 0; overflow: hidden; border-radius: 9999px; border: 1px solid hsl(var(--w-border));}
-        .avatar-img { aspect-ratio: 1/1; height: 100%; width: 100%; }
-        .avatar-fallback { display: flex; height: 100%; width: 100%; align-items: center; justify-content: center; border-radius: 9999px; background-color: hsl(var(--w-muted)); }
-        .text-xs { font-size: 0.75rem; line-height: 1rem; }
-        .text-foreground\\/80 { color: hsla(var(--w-foreground)/0.8); }
-        .pt-2 { padding-top: 0.5rem; }
-        .carousel-prev, .carousel-next { position: absolute; top: 50%; transform: translateY(-50%); height: 2rem; width: 2rem; border-radius: 9999px; display: inline-flex; align-items: center; justify-content: center; background-color:transparent; border: 1px solid hsl(var(--w-border)); color:hsl(var(--w-foreground)); cursor:pointer; }
-        .carousel-prev:hover, .carousel-next:hover { background-color:hsla(var(--w-accent)/0.1); color:hsl(var(--w-accent));}
-        .carousel-prev { left: -1rem; }
-        .carousel-next { right: -1rem; }
-
-        /* Star Rating */
         .star-rating { display: flex; align-items: center; gap: 0.125rem; }
         .star { height: 1.25rem; width: 1.25rem; }
         .star-filled { color: hsl(var(--w-accent)); fill: hsl(var(--w-accent)); }
         .star-empty { color: hsla(var(--w-muted-foreground)/0.3); }
-
-        /* Dialog / Modal */
         .dialog-overlay { position: fixed; inset: 0; z-index: 50; background-color: hsla(var(--w-background)/0.8); backdrop-filter: blur(4px); }
         .dialog-content { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 50; display: grid; width: 100%; max-width: 26.5rem; gap: 1rem; border: 1px solid hsl(var(--w-border)); background-color: hsl(var(--w-background)); padding: 1.5rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); border-radius: var(--w-radius); }
         .dialog-header { display: flex; flex-direction: column; space-y: 0.5rem; text-align: center; }
@@ -1091,24 +1088,20 @@
         .form { display: flex; flex-direction: column; gap: 1rem; padding-top:1rem; padding-bottom:1rem; }
         .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
         .form-label { font-size: 0.875rem; font-weight: 500; }
-        .form-input, .form-textarea { display: flex; width: 100%; border-radius: calc(var(--w-radius) - 4px); border: 1px solid hsl(var(--w-input)); background-color: hsl(var(--w-background)); color: hsl(var(--w-foreground)); padding: 0.5rem 0.75rem; font-size:0.875rem; box-sizing: border-box; }
-        .form-input:focus-visible, .form-textarea:focus-visible { outline: 2px solid hsl(var(--w-primary)); outline-offset: 2px; }
-        .form-textarea { min-height: 80px; }
+        .form-input, .form-textarea { display: flex; width: 100%; border-radius: calc(var(--w-radius) - 4px); border: 1px solid hsl(var(--w-border)); background-color: hsl(var(--w-background)); padding: 0.5rem 0.75rem; font-size:0.875rem; box-sizing: border-box; color: hsl(var(--w-foreground)); }
         .rating-stars { display: flex; align-items: center; gap: 0.25rem; }
-        .star-btn { cursor: pointer; transition: color 0.2s ease-in-out; background: none; border: none; padding: 0; color: hsla(var(--w-muted-foreground)/0.3); }
-        .star-btn.selected, .star-btn:hover { color: hsl(var(--w-accent)); }
-        .star-btn:hover ~ .star-btn { color: hsla(var(--w-muted-foreground)/0.3); }
+        .star-btn { cursor: pointer; transition: color 0.2s ease-in-out; background: none; border: none; padding: 0; }
         .star-btn svg { width: 1.5rem; height: 1.5rem; }
         .justify-end { justify-content: flex-end; }
         .dialog-close { position: absolute; right: 1rem; top: 1rem; border-radius: calc(var(--w-radius) - 4px); opacity: 0.7; cursor: pointer; background:none; border:none; color: hsl(var(--w-foreground))}
         .dialog-close:hover { opacity: 1; }
-
-        /* Tabs */
-        .tabs-list { display: inline-flex; height: 2.5rem; align-items: center; justify-content: center; border-radius: var(--w-radius); background-color: hsl(var(--w-muted)); padding: 0.25rem; color: hsl(var(--w-muted-foreground)); }
-        .tabs-trigger { display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; border-radius: calc(var(--w-radius) - 4px); padding: 0.375rem 0.75rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; border: none; background-color: transparent; color: inherit; }
-        .tabs-trigger[data-state=active] { background-color: hsl(var(--w-background)); color: hsl(var(--w-foreground)); box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05); }
-        .tabs-content { margin-top: 1rem; }
-        .tabs-content[data-state=inactive] { display: none; }
+        .tabs { display: flex; border-bottom: 1px solid hsl(var(--w-border)); }
+        .tab { padding: 0.5rem 1rem; cursor: pointer; border-bottom: 2px solid transparent; color: hsl(var(--w-muted-foreground)); }
+        .tab.active { color: hsl(var(--w-primary)); border-bottom-color: hsl(var(--w-primary)); font-weight: 600; }
+        .tab-content { padding-top: 1.5rem; }
+        .review-grid { display: grid; gap: 1.5rem; grid-template-columns: repeat(1, minmax(0, 1fr)); }
+        @media (min-width: 640px) { .review-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        @media (min-width: 1024px) { .review-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
       `;
 
     static properties = {
@@ -1117,7 +1110,7 @@
       loading: { type: Boolean, state: true },
       error: { type: String, state: true },
       showForm: { type: Boolean, state: true },
-      selectedTab: { type: String, state: true },
+      activeTab: { type: String, state: true },
     };
 
     constructor() {
@@ -1127,21 +1120,7 @@
       this.loading = true;
       this.error = null;
       this.showForm = false;
-      this.selectedTab = 'all';
-    }
-
-    connectedCallback() {
-      super.connectedCallback();
-      if (this.widgetId) {
-          this.fetchReviews();
-      }
-    }
-    
-    attributeChangedCallback(name, oldVal, newVal) {
-        super.attributeChangedCallback(name, oldVal, newVal);
-        if (name === 'widgetid' && newVal && oldVal !== newVal) {
-            this.fetchReviews();
-        }
+      this.activeTab = 'All';
     }
 
     async fetchReviews() {
@@ -1155,38 +1134,17 @@
         const response = await fetch(`${API_ENDPOINT}/${this.widgetId}`);
         if (!response.ok) throw new Error("Failed to fetch widget data.");
         const data = await response.json();
-        this.widget = data.data;
-        this.processReviews();
+        if (data.success) {
+            this.widget = data.data;
+        } else {
+            throw new Error(data.error || "Unknown error fetching widget.");
+        }
       } catch (error) {
         this.error = error.message;
       } finally {
         this.loading = false;
       }
     }
-    
-    processReviews() {
-        if (!this.widget || !this.widget.reviews) {
-            this.allReviewsSorted = [];
-            this.reviewsBySource = {};
-            this.sources = [];
-            return;
-        }
-
-        const sortedReviews = [...this.widget.reviews].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-        this.allReviewsSorted = sortedReviews;
-        
-        const sourceMap = {};
-        for (const review of sortedReviews) {
-            if (!sourceMap[review.source]) {
-                sourceMap[review.source] = [];
-            }
-            sourceMap[review.source].push(review);
-        }
-        
-        this.reviewsBySource = sourceMap;
-        this.sources = Object.keys(sourceMap).sort();
-    }
-
 
     get overallRating() {
       if (!this.widget?.reviews || this.widget.reviews.length === 0) return 0;
@@ -1203,6 +1161,17 @@
         return distribution;
     }
 
+    get reviewSources() {
+        if (!this.widget?.reviews) return [];
+        const sources = new Set(this.widget.reviews.map(r => r.source));
+        return ['All', ...Array.from(sources).sort()];
+    }
+
+    get filteredReviews() {
+        if (this.activeTab === 'All') return this.widget.reviews;
+        return this.widget.reviews.filter(r => r.source === this.activeTab);
+    }
+    
     renderStarRating(rating) {
         const stars = [];
         for (let i = 0; i < 5; i++) {
@@ -1218,38 +1187,23 @@
         this.fetchReviews();
     }
     
-    renderReviewCarousel(reviews) {
-        if (!reviews || reviews.length === 0) {
-            return J`<p class="text-muted-foreground text-center py-12">No reviews for this source.</p>`;
-        }
-        
+    renderReviewCard(review) {
         return J`
-            <div class="carousel">
-                <div class="carousel-content">
-                  ${reviews.map(review => J`
-                    <div class="carousel-item">
-                      <div class="p-1 h-full">
-                        <div class="card flex flex-col h-full bg-card">
-                          <div class="p-6 flex-1 space-y-4">
-                            <div class="flex items-center gap-3">
-                              <div class="avatar">
-                                <span class="avatar-fallback">${review.name.charAt(0)}</span>
-                              </div>
-                              <div>
-                                <p class="font-semibold">${review.name}</p>
-                                <p class="text-xs text-muted-foreground">${review.source} review</p>
-                              </div>
-                            </div>
-                            ${this.renderStarRating(review.stars)}
-                            <p class="text-sm text-foreground/80 pt-2">${review.text}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  `)}
+            <div class="card flex flex-col h-full bg-card">
+              <div class="p-6 flex-1 space-y-4">
+                <div class="flex items-center gap-3">
+                  <div class="avatar">
+                    <span class="avatar-fallback">${review.name.charAt(0)}</span>
+                  </div>
+                  <div>
+                    <p class="font-semibold">${review.name}</p>
+                    <p class="text-xs text-muted-foreground">${review.source} review</p>
+                  </div>
                 </div>
-            </div>
-        `;
+                ${this.renderStarRating(review.stars)}
+                <p class="text-sm text-foreground/80 pt-2">${review.text}</p>
+              </div>
+            </div>`;
     }
 
     render() {
@@ -1258,9 +1212,11 @@
       if (!this.widget) return null;
 
       const totalReviews = this.widget.reviews.length;
+      const sources = this.reviewSources;
+      const reviewsToDisplay = this.filteredReviews.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
       return J`
-        <div class="p-4 sm:p-6 bg-background text-foreground min-h-screen font-body">
+        <div class="p-4 sm:p-6 bg-background text-foreground font-body">
           <div class="max-w-4xl mx-auto">
             <header class="mb-6">
               <h1 class="text-3xl font-bold">${this.widget.businessName}</h1>
@@ -1284,7 +1240,7 @@
                         <span class="text-muted-foreground w-6 text-right">${5 - i}</span>
                         <svg class="w-4 h-4 text-accent" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
                         <div class="progress w-full h-2">
-                            <div class="progress-indicator" style="transform: translateX(-${100 - (count / totalReviews) * 100}%)"></div>
+                            <div class="progress-indicator" style="width: ${(count / totalReviews) * 100}%"></div>
                         </div>
                         <span class="text-muted-foreground w-8 text-right">${count}</span>
                       </div>
@@ -1305,30 +1261,30 @@
                             <div class="dialog-header">
                                 <h3 class="dialog-title">Write a review</h3>
                                 <p class="dialog-description">Share your experience with ${this.widget.businessName}.</p>
-                                <button class="dialog-close" @click=${() => this.showForm = false}>&times;</button>
+                                <button class="dialog-close" @click=${() => this.showForm = false}>
+                                    <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                </button>
                             </div>
                             <add-review-form .widgetId=${this.widgetId} @form-success=${() => this.handleAddReviewSuccess()}></add-review-form>
                         </div>
                     </div>` : ''}
 
                 ${totalReviews > 0 ? J`
-                  <div class="tabs">
-                    <div class="tabs-list">
-                      <button class="tabs-trigger" ?data-state=${this.selectedTab === 'all' ? 'active' : 'inactive'} @click=${() => this.selectedTab = 'all'}>All</button>
-                      ${this.sources.map(source => J`
-                        <button class="tabs-trigger" ?data-state=${this.selectedTab === source ? 'active' : 'inactive'} @click=${() => this.selectedTab = source}>${source}</button>
-                      `)}
+                    <div class="tabs">
+                        ${sources.map(source => J`
+                            <button 
+                                class="tab ${this.activeTab === source ? 'active' : ''}" 
+                                @click=${() => this.activeTab = source}>
+                                ${source}
+                            </button>
+                        `)}
                     </div>
-                    <div class="tabs-content" ?data-state=${this.selectedTab === 'all' ? 'active' : 'inactive'}>
-                        ${this.renderReviewCarousel(this.allReviewsSorted)}
-                    </div>
-                    ${this.sources.map(source => J`
-                        <div class="tabs-content" ?data-state=${this.selectedTab === source ? 'active' : 'inactive'}>
-                            ${this.renderReviewCarousel(this.reviewsBySource[source])}
+                    <div class="tab-content">
+                        <div class="review-grid">
+                            ${reviewsToDisplay.map(review => this.renderReviewCard(review))}
                         </div>
-                    `)}
-                  </div>
-                ` : J`
+                    </div>`
+                : J`
                   <div class="text-center py-20 border-2 border-dashed rounded-lg bg-card text-muted-foreground">
                     <svg class="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
                     <h3 class="mt-2 text-xl font-semibold">No reviews yet</h3>
@@ -1346,32 +1302,49 @@
   }
 
   class AddReviewForm extends ot {
+    static styles = r`
+        .form { display: flex; flex-direction: column; gap: 1rem; padding-top:1rem; padding-bottom:1rem; }
+        .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .form-label { font-size: 0.875rem; font-weight: 500; color: hsl(var(--w-foreground)); }
+        .form-input, .form-textarea { display: flex; width: 100%; border-radius: calc(var(--w-radius) - 4px); border: 1px solid hsl(var(--w-border)); background-color: transparent; padding: 0.5rem 0.75rem; font-size:0.875rem; box-sizing: border-box; color: hsl(var(--w-foreground)); }
+        .form-input:focus, .form-textarea:focus { outline: 2px solid hsl(var(--w-primary)); outline-offset: -1px; }
+        .form-textarea { min-height: 80px; }
+        .rating-stars { display: flex; align-items: center; gap: 0.25rem; }
+        .star-btn { cursor: pointer; transition: color 0.2s ease-in-out; background: none; border: none; padding: 0; }
+        .star-btn svg { width: 1.5rem; height: 1.5rem; }
+        .star-filled { color: hsl(var(--w-accent)); fill: hsl(var(--w-accent)); }
+        .star-empty { color: hsla(var(--w-muted-foreground)/0.3); }
+        .justify-end { justify-content: flex-end; }
+        .button { display: inline-flex; align-items: center; justify-content: center; border-radius: calc(var(--w-radius) - 2px); font-size: 0.875rem; font-weight: 500; height: 2.5rem; padding-left: 1rem; padding-right: 1rem; background-color: hsl(var(--w-primary)); color: hsl(var(--w-primary-foreground)); cursor: pointer; border: none; }
+        .button:hover { background-color: hsl(var(--w-primary)/0.9); }
+        .button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .error-message { color: #f87171; font-size: 0.875rem; }
+    `;
+
     static properties = {
         widgetId: { type: String },
         rating: { type: Number, state: true },
-        hoverRating: { type: Number, state: true },
         submitting: { type: Boolean, state: true },
+        error: {type: String, state: true},
     };
 
     constructor() {
         super();
         this.widgetId = '';
         this.rating = 0;
-        this.hoverRating = 0;
         this.submitting = false;
-    }
-    
-    setRating(value) {
-        this.rating = value;
-    }
-
-    setHoverRating(value) {
-        this.hoverRating = value;
+        this.error = null;
     }
 
     async handleSubmit(e) {
         e.preventDefault();
+        if (this.rating === 0) {
+            this.error = "Please select a star rating.";
+            return;
+        }
         this.submitting = true;
+        this.error = null;
+
         const formData = new FormData(e.target);
         const reviewData = {
             name: formData.get('name'),
@@ -1380,23 +1353,19 @@
             source: 'Direct',
         };
 
-        if (this.rating === 0) {
-            alert('Please select a star rating.');
-            this.submitting = false;
-            return;
-        }
-
         try {
-            const response = await fetch(`${API_ENDPOINT}/${this.widgetId}`, {
+            const response = await fetch(`${API_ENDPOINT}/${this.widgetId}/reviews`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(reviewData),
             });
-            if (!response.ok) throw new Error('Submission failed');
+            const result = await response.json();
+            if (!response.ok || !result.success) {
+                throw new Error(result.error || 'Submission failed');
+            }
             this.dispatchEvent(new CustomEvent('form-success', { bubbles: true, composed: true }));
         } catch (error) {
-            console.error(error);
-            alert('There was an error submitting your review.');
+            this.error = error.message;
         } finally {
             this.submitting = false;
         }
@@ -1413,8 +1382,8 @@
                     <label class="form-label">Rating</label>
                     <div class="rating-stars">
                         ${[1, 2, 3, 4, 5].map(star => J`
-                            <button type="button" @click=${() => this.setRating(star)} @mouseover=${() => this.setHoverRating(star)} @mouseout=${() => this.setHoverRating(0)} class="star-btn ${this.rating >= star || this.hoverRating >= star ? 'selected' : ''}">
-                                <svg fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                            <button type="button" @click=${() => this.rating = star} class="star-btn">
+                                <svg class="${this.rating >= star ? 'star-filled' : 'star-empty'}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
                             </button>
                         `)}
                     </div>
@@ -1423,6 +1392,7 @@
                     <label for="text" class="form-label">Review</label>
                     <textarea id="text" name="text" required class="form-textarea"></textarea>
                 </div>
+                ${this.error ? J`<p class="error-message">${this.error}</p>` : ''}
                 <div class="flex justify-end">
                     <button type="submit" class="button" ?disabled=${this.submitting}>
                         ${this.submitting ? 'Submitting...' : 'Submit Review'}
@@ -1436,13 +1406,4 @@
   customElements.define("review-widget", ReviewWidget);
   customElements.define("add-review-form", AddReviewForm);
 
-  document.addEventListener('DOMContentLoaded', () => {
-      const widgetDivs = document.querySelectorAll('review-widget');
-      widgetDivs.forEach(div => {
-          const widgetId = div.getAttribute('widgetId');
-          if (widgetId) {
-              div.setAttribute('widgetid', widgetId);
-          }
-      });
-  });
 })();

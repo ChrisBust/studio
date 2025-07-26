@@ -5,13 +5,6 @@ import { useMemo } from 'react';
 import type { IWidget } from '@/models/widget';
 import StarRating from './star-rating';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from '@/components/ui/carousel';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '../ui/progress';
 import { AddReviewDialog } from './add-review-dialog';
@@ -22,40 +15,29 @@ interface WidgetViewProps {
   widget: IWidget;
 }
 
-const ReviewCarousel = ({ reviews }: { reviews: IWidget['reviews'] }) => (
-    <Carousel
-        opts={{
-        align: 'start',
-        }}
-        className="w-full"
-    >
-        <CarouselContent>
-        {reviews.map((review) => (
-            <CarouselItem key={review._id.toString()} className="md:basis-1/2 lg:basis-1/3">
-            <div className="p-1 h-full">
-                <Card className="flex flex-col h-full bg-card">
-                <CardContent className="flex-1 p-6 space-y-4">
-                    <div className="flex items-center gap-3">
-                    <Avatar>
-                        <AvatarImage src={`https://placehold.co/40x40.png?text=${review.name.charAt(0)}`} data-ai-hint="person avatar" />
-                        <AvatarFallback>{review.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                        <p className="font-semibold">{review.name}</p>
-                        <p className="text-xs text-muted-foreground">{review.source} review</p>
-                    </div>
-                    </div>
-                    <StarRating rating={review.stars} />
-                    <p className="text-sm text-foreground/80 pt-2">{review.text}</p>
-                </CardContent>
-                </Card>
-            </div>
-            </CarouselItem>
-        ))}
-        </CarouselContent>
-        <CarouselPrevious className="-left-4" />
-        <CarouselNext className="-right-4" />
-    </Carousel>
+const ReviewGrid = ({ reviews }: { reviews: IWidget['reviews'] }) => (
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {reviews.map((review) => (
+        <div key={review._id.toString()} className="h-full">
+            <Card className="flex flex-col h-full bg-card">
+            <CardContent className="flex-1 p-6 space-y-4">
+                <div className="flex items-center gap-3">
+                <Avatar>
+                    <AvatarImage src={`https://placehold.co/40x40.png?text=${review.name.charAt(0)}`} data-ai-hint="person avatar" />
+                    <AvatarFallback>{review.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <div>
+                    <p className="font-semibold">{review.name}</p>
+                    <p className="text-xs text-muted-foreground">{review.source} review</p>
+                </div>
+                </div>
+                <StarRating rating={review.stars} />
+                <p className="text-sm text-foreground/80 pt-2">{review.text}</p>
+            </CardContent>
+            </Card>
+        </div>
+      ))}
+    </div>
 );
 
 
@@ -151,11 +133,11 @@ export default function WidgetView({ widget }: WidgetViewProps) {
                 ))}
               </TabsList>
               <TabsContent value="all" className="mt-4">
-                <ReviewCarousel reviews={allReviewsSorted} />
+                <ReviewGrid reviews={allReviewsSorted} />
               </TabsContent>
                {sources.map(source => (
                 <TabsContent key={source} value={source} className="mt-4">
-                    <ReviewCarousel reviews={reviewsBySource[source].reviews} />
+                    <ReviewGrid reviews={reviewsBySource[source].reviews} />
                 </TabsContent>
               ))}
             </Tabs>
