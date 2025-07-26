@@ -41,10 +41,10 @@ export function WidgetCard({ widget }: WidgetCardProps) {
         </div>
       </CardHeader>
       <CardContent className="flex-grow space-y-4">
-        <div className="flex items-center justify-between text-sm text-muted-foreground bg-secondary/50 p-3 rounded-md">
+        <div className="flex items-center justify-between text-sm text-secondary-foreground bg-secondary/50 p-3 rounded-md">
             <div className="flex items-center gap-2">
                 <Star className="w-4 h-4 text-accent" />
-                <span className="font-bold text-foreground">{overallRating.toFixed(1)}</span>
+                <span className="font-bold">{overallRating.toFixed(1)}</span>
                 <span>({widgetData.reviews.length} reviews)</span>
             </div>
             <div className="flex items-center">
