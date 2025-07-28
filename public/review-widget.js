@@ -287,8 +287,6 @@
               ? void 0
               : e.call(t);
           });
-          this.widgetId = this.getAttribute('widgetId');
-          this.fetchReviews();
     }
     enableUpdating(t) {}
     disconnectedCallback() {
@@ -962,13 +960,13 @@
     }
     connectedCallback() {
       var t;
-      super.connectedCallback(),
-        null === (t = this._$Do) || void 0 === t || t.setConnected(!0);
+      super.connectedCallback();
+      null === (t = this._$Do) || void 0 === t || t.setConnected(!0);
     }
     disconnectedCallback() {
       var t;
-      super.disconnectedCallback(),
-        null === (t = this._$Do) || void 0 === t || t.setConnected(!1);
+      super.disconnectedCallback();
+      null === (t = this._$Do) || void 0 === t || t.setConnected(!1);
     }
     render() {
       return Y;
@@ -988,22 +986,148 @@
   
   const API_ENDPOINT = "https://reviews-widgetchris.netlify.app/api/widgets";
 
+  class AddReviewForm extends ot {
+    static styles = r`
+      .form { display: flex; flex-direction: column; gap: 1rem; padding-top:1rem; padding-bottom:1rem; }
+      .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+      .form-label { font-size: 0.875rem; font-weight: 500; color: hsl(var(--w-foreground)); }
+      .form-input, .form-textarea { display: flex; width: 100%; border-radius: calc(var(--w-radius) - 4px); border: 1px solid hsl(var(--w-border)); background-color: hsl(var(--w-background)); padding: 0.5rem 0.75rem; font-size:0.875rem; box-sizing: border-box; color: hsl(var(--w-foreground)); }
+      .form-input::placeholder, .form-textarea::placeholder { color: hsl(var(--w-muted-foreground)); }
+      .form-textarea { min-height: 80px; }
+      .rating-stars { display: flex; align-items: center; gap: 0.25rem; }
+      .star-btn { cursor: pointer; transition: color 0.2s ease-in-out, transform .1s ease-in-out; background: none; border: none; padding: 0; }
+      .star-btn:hover { transform: scale(1.1); }
+      .star-btn svg { width: 1.5rem; height: 1.5rem; }
+      .star-filled { color: hsl(var(--w-accent)); fill: hsl(var(--w-accent)); }
+      .star-empty { color: hsla(var(--w-muted-foreground), 0.3); }
+      .justify-end { justify-content: flex-end; }
+      .button { display: inline-flex; align-items: center; justify-content: center; border-radius: calc(var(--w-radius) - 2px); font-size: 0.875rem; font-weight: 500; height: 2.5rem; padding-left: 1rem; padding-right: 1rem; background-color: hsl(var(--w-primary)); color: hsl(var(--w-primary-foreground)); cursor: pointer; border: none; }
+      .button:hover { opacity: 0.9; }
+      .button:disabled { opacity: 0.5; cursor: not-allowed; }
+      .error-message { color: hsl(var(--w-destructive, 0 84.2% 60.2%)); font-size: 0.875rem; margin-top: 0.25rem; }
+    `;
+
+    static properties = {
+      widgetId: { type: String },
+      rating: { type: Number, state: true },
+      hoverRating: { type: Number, state: true },
+      submitting: { type: Boolean, state: true },
+      errors: { type: Object, state: true },
+    };
+
+    constructor() {
+      super();
+      this.widgetId = '';
+      this.rating = 0;
+      this.hoverRating = 0;
+      this.submitting = false;
+      this.errors = {};
+    }
+
+    async handleSubmit(e) {
+      e.preventDefault();
+      this.submitting = true;
+      this.errors = {};
+      const formData = new FormData(e.target);
+      const reviewData = {
+        name: formData.get('name'),
+        stars: this.rating,
+        text: formData.get('text'),
+        source: 'Direct',
+      };
+
+      if (!reviewData.name || reviewData.name.length < 2) {
+        this.errors.name = "Name must be at least 2 characters.";
+      }
+      if (reviewData.stars === 0) {
+        this.errors.stars = "Please select a star rating.";
+      }
+      if (!reviewData.text || reviewData.text.length < 10) {
+        this.errors.text = "Review must be at least 10 characters.";
+      }
+
+      if (Object.keys(this.errors).length > 0) {
+          this.submitting = false;
+          this.requestUpdate();
+          return;
+      }
+      
+      try {
+        const response = await fetch(`${API_ENDPOINT}/${this.widgetId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(reviewData),
+        });
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Submission failed');
+        }
+        this.dispatchEvent(new CustomEvent('form-success', { bubbles: true, composed: true }));
+      } catch (error) {
+        this.errors.submit = error.message;
+      } finally {
+        this.submitting = false;
+      }
+    }
+    
+    render() {
+      return J`
+        <form @submit=${this.handleSubmit} class="form" novalidate>
+            <div class="form-group">
+                <label for="name" class="form-label">Your Name</label>
+                <input id="name" name="name" required class="form-input" placeholder="e.g., Jane Doe" />
+                ${this.errors.name ? J`<div class="error-message">${this.errors.name}</div>` : ''}
+            </div>
+            <div class="form-group">
+                <label class="form-label">Rating</label>
+                <div class="rating-stars">
+                    ${[1, 2, 3, 4, 5].map(star => J`
+                        <button type="button" 
+                          @click=${() => this.rating = star} 
+                          @mouseenter=${() => this.hoverRating = star}
+                          @mouseleave=${() => this.hoverRating = 0}
+                          class="star-btn">
+                            <svg class="${(this.hoverRating || this.rating) >= star ? 'star-filled' : 'star-empty'}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        </button>
+                    `)}
+                </div>
+                ${this.errors.stars ? J`<div class="error-message">${this.errors.stars}</div>` : ''}
+            </div>
+            <div class="form-group">
+                <label for="text" class="form-label">Review</label>
+                <textarea id="text" name="text" required class="form-textarea" placeholder="Share your experience..."></textarea>
+                 ${this.errors.text ? J`<div class="error-message">${this.errors.text}</div>` : ''}
+            </div>
+            <div class="flex justify-end">
+                <button type="submit" class="button" ?disabled=${this.submitting}>
+                    ${this.submitting ? 'Submitting...' : 'Submit Review'}
+                </button>
+            </div>
+            ${this.errors.submit ? J`<div class="error-message text-center">${this.errors.submit}</div>` : ''}
+        </form>
+      `;
+    }
+  }
+  
   class ReviewWidget extends ot {
     static styles = r`
         :host {
-          --w-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-          --w-background: 240 10% 3.9%;
+          --w-font-family: 'Inter', sans-serif;
+          --w-background: 280 10% 10%; /* Dark Purple-Gray */
           --w-foreground: 0 0% 98%;
-          --w-card: 240 4.8% 9.8%;
+          --w-card: 280 10% 15%;
           --w-card-foreground: 0 0% 98%;
-          --w-primary: 262.1 83.3% 57.8%;
+          --w-primary: 283 60% 45%; /* #611e79 */
           --w-primary-foreground: 0 0% 98%;
-          --w-secondary: 240 3.7% 15.9%;
-          --w-muted: 240 3.7% 15.9%;
+          --w-secondary: 293 45% 35%; /* #53235a */
+          --w-muted: 280 10% 15%;
           --w-muted-foreground: 240 5% 64.9%;
-          --w-accent: 333.3 83.3% 57.8%;
+          --w-accent: 308 100% 53%; /* #db00be */
           --w-accent-foreground: 0 0% 98%;
-          --w-border: 240 3.7% 15.9%;
+          --w-border: 280 10% 20%;
+          --w-input: 280 10% 20%;
+          --w-ring: 203 91% 55%;
+          --w-destructive: 341 100% 64%;
           --w-radius: 0.8rem;
           display: block;
         }
@@ -1022,11 +1146,12 @@
         .hover\\:underline:hover { text-decoration-line: underline; }
         .grid { display: grid; }
         .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
-        @media (min-width: 768px) { .md\\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+        .md\\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .lg\\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
         .gap-6 { gap: 1.5rem; }
         .mb-8 { margin-bottom: 2rem; }
         .card { border-radius: var(--w-radius); border: 1px solid hsl(var(--w-border)); background-color: hsl(var(--w-card)); color: hsl(var(--w-card-foreground)); box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06); }
-        @media (min-width: 768px) { .md\\:col-span-1 { grid-column: span 1 / span 1; } }
+        .md\\:col-span-1 { grid-column: span 1 / span 1; }
         .flex { display: flex; }
         .flex-col { flex-direction: column; }
         .items-center { align-items: center; }
@@ -1036,7 +1161,7 @@
         .text-5xl { font-size: 3rem; line-height: 1; }
         .text-muted-foreground { color: hsl(var(--w-muted-foreground)); }
         .mt-2 { margin-top: 0.5rem; }
-        @media (min-width: 768px) { .md\\:col-span-2 { grid-column: span 2 / span 2; } }
+        .md\\:col-span-2 { grid-column: span 2 / span 2; }
         .font-semibold { font-weight: 600; }
         .mb-3 { margin-bottom: 0.75rem; }
         .space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.5rem; }
@@ -1056,8 +1181,8 @@
         .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
         .justify-between { justify-content: space-between; }
         .button { display: inline-flex; align-items: center; justify-content: center; border-radius: calc(var(--w-radius) - 2px); font-size: 0.875rem; font-weight: 500; height: 2.5rem; padding-left: 1rem; padding-right: 1rem; background-color: hsl(var(--w-primary)); color: hsl(var(--w-primary-foreground)); cursor: pointer; border: none; }
-        .button:hover { background-color: hsl(var(--w-primary)/0.9); }
-        .p-1 { padding: 0.25rem; }
+        .button:hover { opacity: 0.9; }
+        .mt-4 { margin-top: 1rem; }
         .h-full { height: 100%; }
         .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: 1rem; }
         .gap-3 { gap: 0.75rem; }
@@ -1067,7 +1192,6 @@
         .text-xs { font-size: 0.75rem; line-height: 1rem; }
         .text-foreground\\/80 { color: hsla(var(--w-foreground)/0.8); }
         .pt-2 { padding-top: 0.5rem; }
-        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border-width: 0; }
         .border-2 { border-width: 2px; }
         .border-dashed { border-style: dashed; }
         .rounded-lg { border-radius: var(--w-radius); }
@@ -1081,27 +1205,15 @@
         .star-filled { color: hsl(var(--w-accent)); fill: hsl(var(--w-accent)); }
         .star-empty { color: hsla(var(--w-muted-foreground)/0.3); }
         .dialog-overlay { position: fixed; inset: 0; z-index: 50; background-color: hsla(var(--w-background)/0.8); backdrop-filter: blur(4px); }
-        .dialog-content { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 50; display: grid; width: 100%; max-width: 26.5rem; gap: 1rem; border: 1px solid hsl(var(--w-border)); background-color: hsl(var(--w-background)); padding: 1.5rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); border-radius: var(--w-radius); }
+        .dialog-content { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 50; display: grid; width: 90%; max-width: 26.5rem; gap: 1rem; border: 1px solid hsl(var(--w-border)); background-color: hsl(var(--w-background)); padding: 1.5rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); border-radius: var(--w-radius); }
         .dialog-header { display: flex; flex-direction: column; space-y: 0.5rem; text-align: center; }
         .dialog-title { font-size: 1.125rem; font-weight: 600; }
         .dialog-description { font-size: 0.875rem; color: hsl(var(--w-muted-foreground)); }
-        .form { display: flex; flex-direction: column; gap: 1rem; padding-top:1rem; padding-bottom:1rem; }
-        .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
-        .form-label { font-size: 0.875rem; font-weight: 500; }
-        .form-input, .form-textarea { display: flex; width: 100%; border-radius: calc(var(--w-radius) - 4px); border: 1px solid hsl(var(--w-border)); background-color: hsl(var(--w-background)); padding: 0.5rem 0.75rem; font-size:0.875rem; box-sizing: border-box; color: hsl(var(--w-foreground)); }
-        .rating-stars { display: flex; align-items: center; gap: 0.25rem; }
-        .star-btn { cursor: pointer; transition: color 0.2s ease-in-out; background: none; border: none; padding: 0; }
-        .star-btn svg { width: 1.5rem; height: 1.5rem; }
-        .justify-end { justify-content: flex-end; }
         .dialog-close { position: absolute; right: 1rem; top: 1rem; border-radius: calc(var(--w-radius) - 4px); opacity: 0.7; cursor: pointer; background:none; border:none; color: hsl(var(--w-foreground))}
         .dialog-close:hover { opacity: 1; }
-        .tabs { display: flex; border-bottom: 1px solid hsl(var(--w-border)); }
-        .tab { padding: 0.5rem 1rem; cursor: pointer; border-bottom: 2px solid transparent; color: hsl(var(--w-muted-foreground)); }
-        .tab.active { color: hsl(var(--w-primary)); border-bottom-color: hsl(var(--w-primary)); font-weight: 600; }
-        .tab-content { padding-top: 1.5rem; }
-        .review-grid { display: grid; gap: 1.5rem; grid-template-columns: repeat(1, minmax(0, 1fr)); }
-        @media (min-width: 640px) { .review-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-        @media (min-width: 1024px) { .review-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+        .tabs-list { display: inline-flex; height: 2.5rem; align-items: center; justify-content: center; border-radius: 0.5rem; background-color: hsl(var(--w-muted)); padding: 0.25rem; color: hsl(var(--w-muted-foreground));}
+        .tabs-trigger { display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; border-radius: 0.375rem; padding: 0 0.75rem; height: 2rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; border: none; background-color: transparent; color: hsl(var(--w-muted-foreground));}
+        .tabs-trigger[data-state=active] { background-color: hsl(var(--w-background)); color: hsl(var(--w-foreground)); box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05); }
       `;
 
     static properties = {
@@ -1120,7 +1232,21 @@
       this.loading = true;
       this.error = null;
       this.showForm = false;
-      this.activeTab = 'All';
+      this.activeTab = 'all';
+    }
+
+    connectedCallback() {
+      super.connectedCallback();
+      if (this.widgetId) {
+        this.fetchReviews();
+      }
+    }
+    
+    attributeChangedCallback(name, old, val) {
+        super.attributeChangedCallback(name, old, val);
+        if (name === 'widgetid' && val && old !== val) {
+            this.fetchReviews();
+        }
     }
 
     async fetchReviews() {
@@ -1136,8 +1262,9 @@
         const data = await response.json();
         if (data.success) {
             this.widget = data.data;
+            this.error = null;
         } else {
-            throw new Error(data.error || "Unknown error fetching widget.");
+            throw new Error(data.error || "Failed to parse widget data.");
         }
       } catch (error) {
         this.error = error.message;
@@ -1146,32 +1273,44 @@
       }
     }
 
-    get overallRating() {
-      if (!this.widget?.reviews || this.widget.reviews.length === 0) return 0;
-      const total = this.widget.reviews.reduce((acc, r) => acc + r.stars, 0);
-      return total / this.widget.reviews.length;
-    }
-
-    get ratingDistribution() {
-        const distribution = [0, 0, 0, 0, 0];
-        if (!this.widget?.reviews) return distribution;
-        for (const review of this.widget.reviews) {
-            distribution[5 - review.stars]++;
+    get memoizedData() {
+        if (!this.widget?.reviews) {
+            return {
+                overallRating: 0,
+                totalReviews: 0,
+                ratingDistribution: [0, 0, 0, 0, 0],
+                reviewsBySource: {},
+                sources: [],
+                allReviewsSorted: []
+            };
         }
-        return distribution;
-    }
-
-    get reviewSources() {
-        if (!this.widget?.reviews) return [];
-        const sources = new Set(this.widget.reviews.map(r => r.source));
-        return ['All', ...Array.from(sources).sort()];
-    }
-
-    get filteredReviews() {
-        if (this.activeTab === 'All') return this.widget.reviews;
-        return this.widget.reviews.filter(r => r.source === this.activeTab);
-    }
     
+        const total = this.widget.reviews.reduce((acc, review) => acc + review.stars, 0);
+        const overall = this.widget.reviews.length > 0 ? total / this.widget.reviews.length : 0;
+    
+        const distribution = [0, 0, 0, 0, 0];
+        const sourceCounts = {};
+    
+        const sortedReviews = [...this.widget.reviews].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    
+        for (const review of sortedReviews) {
+            distribution[5 - review.stars]++;
+            if (!sourceCounts[review.source]) {
+                sourceCounts[review.source] = { reviews: [] };
+            }
+            sourceCounts[review.source].reviews.push(review);
+        }
+
+        return {
+            overallRating: overall,
+            totalReviews: this.widget.reviews.length,
+            ratingDistribution: distribution,
+            reviewsBySource: sourceCounts,
+            sources: Object.keys(sourceCounts).sort(),
+            allReviewsSorted: sortedReviews
+        };
+    }
+
     renderStarRating(rating) {
         const stars = [];
         for (let i = 0; i < 5; i++) {
@@ -1187,36 +1326,41 @@
         this.fetchReviews();
     }
     
-    renderReviewCard(review) {
+    renderReviewGrid(reviews) {
+        if (!reviews || reviews.length === 0) return J`<p class="text-muted-foreground text-center col-span-full">No reviews for this source.</p>`;
         return J`
-            <div class="card flex flex-col h-full bg-card">
-              <div class="p-6 flex-1 space-y-4">
-                <div class="flex items-center gap-3">
-                  <div class="avatar">
-                    <span class="avatar-fallback">${review.name.charAt(0)}</span>
-                  </div>
-                  <div>
-                    <p class="font-semibold">${review.name}</p>
-                    <p class="text-xs text-muted-foreground">${review.source} review</p>
-                  </div>
-                </div>
-                ${this.renderStarRating(review.stars)}
-                <p class="text-sm text-foreground/80 pt-2">${review.text}</p>
-              </div>
-            </div>`;
+            ${reviews.map(review => J`
+                <div class="card flex flex-col h-full bg-card">
+                    <div class="p-6 flex-1 space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="avatar">
+                        <span class="avatar-fallback">${review.name.charAt(0)}</span>
+                        </div>
+                        <div>
+                        <p class="font-semibold">${review.name}</p>
+                        <p class="text-xs text-muted-foreground">${review.source} review</p>
+                        </div>
+                    </div>
+                    ${this.renderStarRating(review.stars)}
+                    <p class="text-sm text-foreground/80 pt-2">${review.text}</p>
+                    </div>
+                </div>`
+            )}
+        `;
     }
+
 
     render() {
       if (this.loading) return J`<div class="p-4 text-center">Loading...</div>`;
       if (this.error) return J`<div class="p-4 text-center text-red-500">Error: ${this.error}</div>`;
       if (!this.widget) return null;
+      
+      const { overallRating, totalReviews, ratingDistribution, reviewsBySource, sources, allReviewsSorted } = this.memoizedData;
 
-      const totalReviews = this.widget.reviews.length;
-      const sources = this.reviewSources;
-      const reviewsToDisplay = this.filteredReviews.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      let currentReviews = this.activeTab === 'all' ? allReviewsSorted : reviewsBySource[this.activeTab]?.reviews || [];
 
       return J`
-        <div class="p-4 sm:p-6 bg-background text-foreground font-body">
+        <div class="p-4 sm:p-6 bg-background text-foreground min-h-screen font-body">
           <div class="max-w-4xl mx-auto">
             <header class="mb-6">
               <h1 class="text-3xl font-bold">${this.widget.businessName}</h1>
@@ -1228,19 +1372,19 @@
             ${totalReviews > 0 ? J`
               <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div class="card md:col-span-1 flex flex-col items-center justify-center text-center p-6 bg-card">
-                  <p class="text-5xl font-bold">${this.overallRating.toFixed(1)}</p>
-                  ${this.renderStarRating(this.overallRating)}
+                  <p class="text-5xl font-bold">${overallRating.toFixed(1)}</p>
+                  ${this.renderStarRating(overallRating)}
                   <p class="text-muted-foreground mt-2">Based on ${totalReviews} reviews</p>
                 </div>
                 <div class="card md:col-span-2 p-6 bg-card">
                   <h2 class="font-semibold mb-3">Rating distribution</h2>
                   <div class="space-y-2">
-                    ${this.ratingDistribution.map((count, i) => J`
+                    ${ratingDistribution.map((count, i) => J`
                       <div class="flex items-center gap-2 text-sm">
                         <span class="text-muted-foreground w-6 text-right">${5 - i}</span>
                         <svg class="w-4 h-4 text-accent" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
                         <div class="progress w-full h-2">
-                            <div class="progress-indicator" style="width: ${(count / totalReviews) * 100}%"></div>
+                            <div class="progress-indicator" style="transform: translateX(-${100 - (totalReviews > 0 ? (count / totalReviews) * 100 : 0)}%)"></div>
                         </div>
                         <span class="text-muted-foreground w-8 text-right">${count}</span>
                       </div>
@@ -1261,30 +1405,25 @@
                             <div class="dialog-header">
                                 <h3 class="dialog-title">Write a review</h3>
                                 <p class="dialog-description">Share your experience with ${this.widget.businessName}.</p>
-                                <button class="dialog-close" @click=${() => this.showForm = false}>
-                                    <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                                </button>
+                                <button class="dialog-close" @click=${() => this.showForm = false}>&times;</button>
                             </div>
                             <add-review-form .widgetId=${this.widgetId} @form-success=${() => this.handleAddReviewSuccess()}></add-review-form>
                         </div>
                     </div>` : ''}
 
                 ${totalReviews > 0 ? J`
-                    <div class="tabs">
-                        ${sources.map(source => J`
-                            <button 
-                                class="tab ${this.activeTab === source ? 'active' : ''}" 
-                                @click=${() => this.activeTab = source}>
-                                ${source}
-                            </button>
-                        `)}
+                  <div>
+                    <div class="tabs-list">
+                      <button @click=${() => this.activeTab = 'all'} class="tabs-trigger" data-state=${this.activeTab === 'all' ? 'active' : 'inactive'}>All</button>
+                      ${sources.map(source => J`
+                        <button @click=${() => this.activeTab = source} class="tabs-trigger" data-state=${this.activeTab === source ? 'active' : 'inactive'}>${source}</button>
+                      `)}
                     </div>
-                    <div class="tab-content">
-                        <div class="review-grid">
-                            ${reviewsToDisplay.map(review => this.renderReviewCard(review))}
-                        </div>
-                    </div>`
-                : J`
+                    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                       ${this.renderReviewGrid(currentReviews)}
+                    </div>
+                  </div>
+                ` : J`
                   <div class="text-center py-20 border-2 border-dashed rounded-lg bg-card text-muted-foreground">
                     <svg class="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
                     <h3 class="mt-2 text-xl font-semibold">No reviews yet</h3>
@@ -1301,109 +1440,39 @@
     }
   }
 
-  class AddReviewForm extends ot {
-    static styles = r`
-        .form { display: flex; flex-direction: column; gap: 1rem; padding-top:1rem; padding-bottom:1rem; }
-        .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
-        .form-label { font-size: 0.875rem; font-weight: 500; color: hsl(var(--w-foreground)); }
-        .form-input, .form-textarea { display: flex; width: 100%; border-radius: calc(var(--w-radius) - 4px); border: 1px solid hsl(var(--w-border)); background-color: transparent; padding: 0.5rem 0.75rem; font-size:0.875rem; box-sizing: border-box; color: hsl(var(--w-foreground)); }
-        .form-input:focus, .form-textarea:focus { outline: 2px solid hsl(var(--w-primary)); outline-offset: -1px; }
-        .form-textarea { min-height: 80px; }
-        .rating-stars { display: flex; align-items: center; gap: 0.25rem; }
-        .star-btn { cursor: pointer; transition: color 0.2s ease-in-out; background: none; border: none; padding: 0; }
-        .star-btn svg { width: 1.5rem; height: 1.5rem; }
-        .star-filled { color: hsl(var(--w-accent)); fill: hsl(var(--w-accent)); }
-        .star-empty { color: hsla(var(--w-muted-foreground)/0.3); }
-        .justify-end { justify-content: flex-end; }
-        .button { display: inline-flex; align-items: center; justify-content: center; border-radius: calc(var(--w-radius) - 2px); font-size: 0.875rem; font-weight: 500; height: 2.5rem; padding-left: 1rem; padding-right: 1rem; background-color: hsl(var(--w-primary)); color: hsl(var(--w-primary-foreground)); cursor: pointer; border: none; }
-        .button:hover { background-color: hsl(var(--w-primary)/0.9); }
-        .button:disabled { opacity: 0.5; cursor: not-allowed; }
-        .error-message { color: #f87171; font-size: 0.875rem; }
-    `;
-
-    static properties = {
-        widgetId: { type: String },
-        rating: { type: Number, state: true },
-        submitting: { type: Boolean, state: true },
-        error: {type: String, state: true},
-    };
-
-    constructor() {
-        super();
-        this.widgetId = '';
-        this.rating = 0;
-        this.submitting = false;
-        this.error = null;
-    }
-
-    async handleSubmit(e) {
-        e.preventDefault();
-        if (this.rating === 0) {
-            this.error = "Please select a star rating.";
-            return;
-        }
-        this.submitting = true;
-        this.error = null;
-
-        const formData = new FormData(e.target);
-        const reviewData = {
-            name: formData.get('name'),
-            stars: this.rating,
-            text: formData.get('text'),
-            source: 'Direct',
-        };
-
-        try {
-            const response = await fetch(`${API_ENDPOINT}/${this.widgetId}/reviews`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(reviewData),
-            });
-            const result = await response.json();
-            if (!response.ok || !result.success) {
-                throw new Error(result.error || 'Submission failed');
-            }
-            this.dispatchEvent(new CustomEvent('form-success', { bubbles: true, composed: true }));
-        } catch (error) {
-            this.error = error.message;
-        } finally {
-            this.submitting = false;
-        }
-    }
-    
-    render() {
-        return J`
-            <form @submit=${this.handleSubmit} class="form">
-                <div class="form-group">
-                    <label for="name" class="form-label">Your Name</label>
-                    <input id="name" name="name" required class="form-input" />
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Rating</label>
-                    <div class="rating-stars">
-                        ${[1, 2, 3, 4, 5].map(star => J`
-                            <button type="button" @click=${() => this.rating = star} class="star-btn">
-                                <svg class="${this.rating >= star ? 'star-filled' : 'star-empty'}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                            </button>
-                        `)}
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="text" class="form-label">Review</label>
-                    <textarea id="text" name="text" required class="form-textarea"></textarea>
-                </div>
-                ${this.error ? J`<p class="error-message">${this.error}</p>` : ''}
-                <div class="flex justify-end">
-                    <button type="submit" class="button" ?disabled=${this.submitting}>
-                        ${this.submitting ? 'Submitting...' : 'Submit Review'}
-                    </button>
-                </div>
-            </form>
-        `;
-    }
-  }
-
   customElements.define("review-widget", ReviewWidget);
   customElements.define("add-review-form", AddReviewForm);
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const widgetDivs = document.querySelectorAll('div[data-review-widget]');
+    widgetDivs.forEach(div => {
+      const widgetId = div.getAttribute('widgetId');
+      if (widgetId) {
+        const reviewWidget = document.createElement('review-widget');
+        reviewWidget.setAttribute('widgetId', widgetId);
+        div.appendChild(reviewWidget);
+      }
+    });
+  });
+
+  // Support for dynamically added widgets
+  const observer = new MutationObserver((mutationsList) => {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'childList') {
+        mutation.addedNodes.forEach(node => {
+          if (node.nodeType === 1 && node.matches('div[data-review-widget]')) {
+            const widgetId = node.getAttribute('widgetId');
+            if (widgetId && node.children.length === 0) {
+               const reviewWidget = document.createElement('review-widget');
+               reviewWidget.setAttribute('widgetId', widgetId);
+               node.appendChild(reviewWidget);
+            }
+          }
+        });
+      }
+    }
+  });
+
+  observer.observe(document.body, { childList: true, subtree: true });
 
 })();
