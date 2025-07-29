@@ -3,7 +3,6 @@
 import Link from "next/link";
 import {
   Bot,
-  FileJson,
   FileText,
   LayoutDashboard,
   Menu,
@@ -38,13 +37,6 @@ export default async function DashboardLayout({ children }: { children: ReactNod
               >
                 <LayoutDashboard className="h-4 w-4" />
                 All-In-One Reviews
-              </Link>
-              <Link
-                href="/dashboard/import"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-              >
-                <FileJson className="h-4 w-4" />
-                Import Reviews
               </Link>
               <Link
                 href="#"
@@ -92,13 +84,6 @@ export default async function DashboardLayout({ children }: { children: ReactNod
                 >
                   <LayoutDashboard className="h-5 w-5" />
                   All-In-One Reviews
-                </Link>
-                 <Link
-                  href="/dashboard/import"
-                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
-                >
-                  <FileJson className="h-5 w-5" />
-                  Import Reviews
                 </Link>
                 <Link
                   href="#"

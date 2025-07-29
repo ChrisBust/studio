@@ -2,7 +2,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { Building, Clock, Bot, ExternalLink, Star } from 'lucide-react';
+import { Bot, Clock, ExternalLink, Star } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,8 +10,6 @@ import type { IWidget } from '@/models/widget';
 import DeleteWidgetButton from './delete-widget-button';
 import EmbedCodeButton from './embed-code-button';
 import PreviewWidgetDialog from './preview-widget-dialog';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
 import { ManageReviewsDialog } from './manage-reviews-dialog';
 
 interface WidgetCardProps {
@@ -41,7 +39,7 @@ export function WidgetCard({ widget }: WidgetCardProps) {
         </div>
       </CardHeader>
       <CardContent className="flex-grow space-y-4">
-        <div className="flex items-center justify-between text-sm text-secondary-foreground bg-secondary/50 p-3 rounded-md">
+        <div className="flex items-center justify-between text-sm text-primary-foreground bg-primary p-3 rounded-md">
             <div className="flex items-center gap-2">
                 <Star className="w-4 h-4 text-accent" />
                 <span className="font-bold">{overallRating.toFixed(1)}</span>
