@@ -69,8 +69,13 @@ const AddReviewSchema = z.object({
 export async function POST(request: Request, { params }: { params: Params }) {
   await dbConnect();
   try {
-    const body = await request.json();
-    const validatedFields = AddReviewSchema.safeParse(body);
+    const formData = await request.formData();
+    const validatedFields = AddReviewSchema.safeParse({
+      name: formData.get('name'),
+      stars: formData.get('stars'),
+      text: formData.get('text'),
+      source: formData.get('source'),
+    });
     
     if (!validatedFields.success) {
       return NextResponse.json({ success: false, error: validatedFields.error.flatten().fieldErrors }, { status: 400, headers: corsHeaders });
