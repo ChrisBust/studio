@@ -1,361 +1,293 @@
 
 (function() {
-    const API_BASE_URL = 'https://widget-wizard-chris.netlify.app';
-
-    function getStarSVG(isFilled = false) {
-        return `
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="${isFilled ? '#FACC15' : 'none'}" stroke="${isFilled ? '#FACC15' : 'currentColor'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: ${isFilled ? '#FACC15' : '#D1D5DB'};">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-            </svg>
-        `;
-    }
-
-    function createModal(widgetId, businessName) {
-        const modalOverlay = document.createElement('div');
-        modalOverlay.style.position = 'fixed';
-        modalOverlay.style.top = '0';
-        modalOverlay.style.left = '0';
-        modalOverlay.style.width = '100%';
-        modalOverlay.style.height = '100%';
-        modalOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-        modalOverlay.style.display = 'flex';
-        modalOverlay.style.justifyContent = 'center';
-        modalOverlay.style.alignItems = 'center';
-        modalOverlay.style.zIndex = '10000';
-        modalOverlay.style.fontFamily = 'sans-serif';
-
-        const modalContent = document.createElement('div');
-        modalContent.style.backgroundColor = '#ffffff';
-        modalContent.style.padding = '24px';
-        modalContent.style.borderRadius = '8px';
-        modalContent.style.maxWidth = '90%';
-        modalContent.style.width = '400px';
-        modalContent.style.boxSizing = 'border-box';
-        modalContent.style.position = 'relative';
-
-        const closeButton = document.createElement('button');
-        closeButton.textContent = '×';
-        closeButton.style.position = 'absolute';
-        closeButton.style.top = '10px';
-        closeButton.style.right = '10px';
-        closeButton.style.background = 'transparent';
-        closeButton.style.border = 'none';
-        closeButton.style.fontSize = '24px';
-        closeButton.style.cursor = 'pointer';
-        closeButton.onclick = () => document.body.removeChild(modalOverlay);
-
-        const title = document.createElement('h2');
-        title.textContent = `Write a review for ${businessName}`;
-        title.style.marginTop = '0';
-        title.style.marginBottom = '8px';
-        title.style.fontSize = '20px';
-
-        const description = document.createElement('p');
-        description.textContent = 'Share your experience with us.';
-        description.style.color = '#6B7280';
-        description.style.marginTop = '0';
-        description.style.marginBottom = '20px';
-
-        const form = document.createElement('form');
-        form.style.display = 'flex';
-        form.style.flexDirection = 'column';
-        form.style.gap = '16px';
-
-        const nameLabel = document.createElement('label');
-        nameLabel.textContent = 'Your Name';
-        nameLabel.style.fontWeight = '500';
-        const nameInput = document.createElement('input');
-        nameInput.type = 'text';
-        nameInput.name = 'name';
-        nameInput.required = true;
-        nameInput.style.width = '100%';
-        nameInput.style.padding = '8px';
-        nameInput.style.borderRadius = '4px';
-        nameInput.style.border = '1px solid #D1D5DB';
-        nameInput.style.boxSizing = 'border-box';
-        form.appendChild(nameLabel);
-        form.appendChild(nameInput);
-        
-        const ratingLabel = document.createElement('label');
-        ratingLabel.textContent = 'Rating';
-        ratingLabel.style.fontWeight = '500';
-        form.appendChild(ratingLabel);
-
-        const starContainer = document.createElement('div');
-        starContainer.style.display = 'flex';
-        starContainer.style.flexDirection = 'row';
-        starContainer.style.gap = '4px';
-        
-        let currentRating = 0;
-        const stars = [];
-        for (let i = 1; i <= 5; i++) {
-            const starWrapper = document.createElement('div');
-            starWrapper.innerHTML = getStarSVG(false);
-            starWrapper.style.cursor = 'pointer';
-            starWrapper.dataset.rating = i;
-            stars.push(starWrapper);
-
-            const updateStars = (hoverRating) => {
-                stars.forEach(s => {
-                    s.innerHTML = getStarSVG(parseInt(s.dataset.rating) <= hoverRating);
-                });
-            };
-
-            starWrapper.addEventListener('mouseover', () => updateStars(i));
-            starWrapper.addEventListener('mouseout', () => updateStars(currentRating));
-            starWrapper.addEventListener('click', () => {
-                currentRating = i;
-                updateStars(currentRating);
-            });
-            starContainer.appendChild(starWrapper);
+    document.addEventListener('DOMContentLoaded', function() {
+        const widgetContainer = document.querySelector('review-widget');
+        if (!widgetContainer) {
+            console.error('Widget container <review-widget> not found.');
+            return;
         }
-        form.appendChild(starContainer);
 
-        const reviewLabel = document.createElement('label');
-        reviewLabel.textContent = 'Review';
-        reviewLabel.style.fontWeight = '500';
-        const reviewTextarea = document.createElement('textarea');
-        reviewTextarea.name = 'text';
-        reviewTextarea.rows = 4;
-        reviewTextarea.required = true;
-        reviewTextarea.style.width = '100%';
-        reviewTextarea.style.padding = '8px';
-        reviewTextarea.style.borderRadius = '4px';
-        reviewTextarea.style.border = '1px solid #D1D5DB';
-        reviewTextarea.style.boxSizing = 'border-box';
-        reviewTextarea.style.resize = 'vertical';
-        form.appendChild(reviewLabel);
-        form.appendChild(reviewTextarea);
+        const widgetId = widgetContainer.getAttribute('widgetId');
+        
+        // This is now hardcoded for simplicity and reliability.
+        const apiBaseUrl = 'https://widget-wizard-chris.netlify.app';
 
-        const submitButton = document.createElement('button');
-        submitButton.type = 'submit';
-        submitButton.textContent = 'Submit Review';
-        submitButton.style.padding = '10px 16px';
-        submitButton.style.backgroundColor = '#4F46E5';
-        submitButton.style.color = 'white';
-        submitButton.style.border = 'none';
-        submitButton.style.borderRadius = '4px';
-        submitButton.style.cursor = 'pointer';
-        submitButton.style.alignSelf = 'flex-end';
-        form.appendChild(submitButton);
+        if (!widgetId) {
+            widgetContainer.innerHTML = '<p style="color: red; font-family: sans-serif;">Error: Widget ID is missing.</p>';
+            return;
+        }
 
-        form.onsubmit = async (e) => {
-            e.preventDefault();
-            const formData = new FormData(form);
-            const data = {
-                name: formData.get('name'),
-                stars: currentRating,
-                text: formData.get('text'),
-                source: 'Direct'
-            };
-            
-            if (data.stars === 0) {
-                alert('Please select a star rating.');
-                return;
-            }
-
+        async function fetchWidgetData() {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/widgets/${widgetId}/reviews`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                if (response.ok) {
-                    alert('Thank you for your review!');
-                    document.body.removeChild(modalOverlay);
-                    renderWidget(widgetId); // Re-render widget to show new review
-                } else {
-                    const error = await response.json();
-                    alert(`Error: ${error.error || 'Could not submit review.'}`);
+                const response = await fetch(`${apiBaseUrl}/api/widgets/${widgetId}`);
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok, status: ${response.status}`);
                 }
-            } catch (err) {
-                alert('An error occurred. Please try again.');
+                const result = await response.json();
+                if (result.success) {
+                    renderWidget(result.data);
+                } else {
+                    throw new Error(result.error || 'Failed to load widget data.');
+                }
+            } catch (error) {
+                console.error('Error fetching widget data:', error);
+                widgetContainer.innerHTML = `<p style="color: red; font-family: sans-serif;">Error: Could not load widget. ${error.message}</p>`;
             }
-        };
-
-        modalContent.appendChild(closeButton);
-        modalContent.appendChild(title);
-        modalContent.appendChild(description);
-        modalContent.appendChild(form);
-        modalOverlay.appendChild(modalContent);
-        document.body.appendChild(modalOverlay);
-    }
-    
-    function createStarRating(rating) {
-        const container = document.createElement('div');
-        container.style.display = 'flex';
-        container.style.gap = '2px';
-        for (let i = 0; i < 5; i++) {
-            const star = document.createElement('div');
-            const isFilled = i < Math.round(rating);
-            star.innerHTML = getStarSVG(isFilled);
-            container.appendChild(star);
-        }
-        return container;
-    }
-
-    async function renderWidget(widgetId) {
-        const targetElement = document.querySelector(`review-widget[widgetId='${widgetId}']`);
-        if (!targetElement) {
-            console.error(`Widget target with ID ${widgetId} not found.`);
-            targetElement.innerHTML = `<p style="color: red; font-family: sans-serif;">Error: Widget container not found.</p>`;
-            return;
         }
 
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/widgets/${widgetId}`);
-            if (!response.ok) throw new Error('Failed to fetch widget data.');
-            const { data: widget } = await response.json();
-
-            // Clear previous content
-            targetElement.innerHTML = '';
-            
-            const overallRating = widget.reviews.length > 0 ? widget.reviews.reduce((acc, r) => acc + r.stars, 0) / widget.reviews.length : 0;
+        function renderWidget(widget) {
+            const overallRating = widget.reviews.length > 0
+                ? widget.reviews.reduce((acc, review) => acc + review.stars, 0) / widget.reviews.length
+                : 0;
             const totalReviews = widget.reviews.length;
-            const ratingDistribution = Array(5).fill(0);
-            widget.reviews.forEach(r => ratingDistribution[5 - r.stars]++);
-
-            const style = document.createElement('style');
-            style.textContent = `
-                .widget-container { font-family: sans-serif; background-color: #F9FAFB; padding: 24px; max-width: 1200px; margin: auto; }
-                .widget-header { text-align: center; margin-bottom: 24px; }
-                .widget-header h1 { font-size: 28px; font-weight: bold; margin: 0 0 4px 0; }
-                .widget-summary { display: grid; grid-template-columns: 1fr; gap: 24px; margin-bottom: 32px; }
-                @media (min-width: 768px) { .widget-summary { grid-template-columns: 1fr 2fr; } }
-                .summary-card { background-color: white; border-radius: 8px; padding: 24px; border: 1px solid #E5E7EB; }
-                .overall-rating { display: flex; flex-direction: column; align-items: center; justify-content: center; }
-                .overall-rating .rating-value { font-size: 56px; font-weight: bold; }
-                .overall-rating .rating-text { color: #6B7280; }
-                .distribution-bar { display: flex; align-items: center; gap: 8px; }
-                .distribution-bar .bar { background-color: #E5E7EB; height: 8px; border-radius: 4px; flex-grow: 1; }
-                .distribution-bar .bar-inner { background-color: #FBBF24; height: 100%; border-radius: 4px; }
-                .reviews-header { display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
-                @media (min-width: 640px) { .reviews-header { flex-direction: row; } }
-                .reviews-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
-                @media (min-width: 640px) { .reviews-grid { grid-template-columns: repeat(2, 1fr); } }
-                @media (min-width: 1024px) { .reviews-grid { grid-template-columns: repeat(3, 1fr); } }
-                .review-card { background-color: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 24px; }
-                .review-card-header { display: flex; align-items: center; gap: 12px; }
-                .review-card-avatar { width: 40px; height: 40px; border-radius: 50%; background-color: #D1D5DB; display: flex; justify-content: center; align-items: center; font-weight: bold; }
-                .review-card-author .name { font-weight: 600; }
-                .review-card-author .source { font-size: 12px; color: #6B7280; }
-                .review-card .rating { margin: 12px 0; }
-                .review-card .text { color: #374151; font-size: 14px; }
-            `;
-            targetElement.appendChild(style);
-
-            const container = document.createElement('div');
-            container.className = 'widget-container';
-
-            // Header
-            const header = document.createElement('div');
-            header.className = 'widget-header';
-            header.innerHTML = `<h1>${widget.businessName}</h1>`;
-            container.appendChild(header);
-
-            if (totalReviews > 0) {
-                 const summary = document.createElement('div');
-                summary.className = 'widget-summary';
-                summary.innerHTML = `
-                    <div class="summary-card overall-rating">
-                        <div class="rating-value">${overallRating.toFixed(1)}</div>
-                        ${createStarRating(overallRating).outerHTML}
-                        <div class="rating-text">Based on ${totalReviews} reviews</div>
-                    </div>
-                    <div class="summary-card">
-                        <h2 style="font-weight: 600; margin-bottom: 12px;">Rating distribution</h2>
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            ${ratingDistribution.map((count, i) => `
-                                <div class="distribution-bar">
-                                    <span style="color: #6B7280;">${5 - i}</span>
-                                    <div style="color: #FACC15;">
-                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                                    </div>
-                                    <div class="bar"><div class="bar-inner" style="width: ${(count / totalReviews) * 100}%;"></div></div>
-                                    <span style="color: #6B7280; width: 20px; text-align: right;">${count}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-                container.appendChild(summary);
-            }
             
-            const reviewsSection = document.createElement('div');
-            const reviewsHeader = document.createElement('div');
-            reviewsHeader.className = 'reviews-header';
-            reviewsHeader.innerHTML = `<h2 style="font-size: 20px; font-weight: bold;">${totalReviews > 0 ? "What people are saying" : "Be the first to leave a review"}</h2>`;
-            const writeReviewButton = document.createElement('button');
-            writeReviewButton.textContent = 'Write a Review';
-            writeReviewButton.style.padding = '8px 16px';
-            writeReviewButton.style.backgroundColor = '#4F46E5';
-            writeReviewButton.style.color = 'white';
-            writeReviewButton.style.border = 'none';
-            writeReviewButton.style.borderRadius = '4px';
-            writeReviewButton.style.cursor = 'pointer';
-            writeReviewButton.onclick = () => createModal(widgetId, widget.businessName);
-            reviewsHeader.appendChild(writeReviewButton);
-            reviewsSection.appendChild(reviewsHeader);
-
-            const reviewsGrid = document.createElement('div');
-            reviewsGrid.className = 'reviews-grid';
+            const ratingDistribution = Array(5).fill(0);
             if (totalReviews > 0) {
-                 widget.reviews.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).forEach(review => {
-                    reviewsGrid.innerHTML += `
-                        <div class="review-card">
-                            <div class="review-card-header">
-                                <div class="review-card-avatar">${review.name.charAt(0)}</div>
-                                <div class="review-card-author">
-                                    <div class="name">${review.name}</div>
-                                    <div class="source">${review.source} review</div>
-                                </div>
-                            </div>
-                            <div class="rating">${createStarRating(review.stars).outerHTML}</div>
-                            <p class="text">${review.text}</p>
-                        </div>
-                    `;
+                 widget.reviews.forEach(review => {
+                    ratingDistribution[5 - review.stars]++;
                 });
-            } else {
-                 reviewsGrid.innerHTML = `
-                    <div style="text-align: center; padding: 48px; border: 2px dashed #D1D5DB; border-radius: 8px; grid-column: 1 / -1;">
-                        <h3 style="font-size: 18px; font-weight: 600;">No reviews yet</h3>
-                        <p style="color: #6B7280;">Your widget is ready to collect feedback.</p>
+            }
+
+            const sortedReviews = widget.reviews ? [...widget.reviews].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) : [];
+            
+            const style = `
+                :host {
+                    --w-primary: #3F51B5;
+                    --w-accent: #FFB300;
+                    --w-background: #FFFFFF;
+                    --w-card-background: #FFFFFF;
+                    --w-text-primary: #212529;
+                    --w-text-secondary: #6c757d;
+                    --w-border-color: #e9ecef;
+                    --w-star-inactive: #ced4da;
+                }
+                .widget-wrapper { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; color: var(--w-text-primary); background-color: var(--w-background); padding: 2rem; border-radius: 0.5rem; max-width: 1200px; margin: auto; }
+                .widget-header { text-align: center; margin-bottom: 2rem; }
+                .widget-header h1 { font-size: 2rem; font-weight: bold; margin: 0; }
+                .summary-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+                @media (min-width: 768px) { .summary-grid { grid-template-columns: 1fr 2fr; } }
+                .summary-card { background-color: var(--w-card-background); border: 1px solid var(--w-border-color); border-radius: 0.5rem; padding: 1.5rem; }
+                .overall-rating { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+                .overall-rating .score { font-size: 3.5rem; font-weight: bold; }
+                .overall-rating .stars-container { display: flex; gap: 0.25rem; color: var(--w-accent); }
+                .overall-rating .review-count { color: var(--w-text-secondary); margin-top: 0.5rem; }
+                .distribution-list { list-style: none; padding: 0; margin: 0; space-y: 0.5rem; }
+                .distribution-item { display: flex; align-items: center; gap: 0.5rem; color: var(--w-text-secondary); }
+                .distribution-item .star-icon { color: var(--w-accent); }
+                .reviews-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem; }
+                .reviews-header h2 { font-size: 1.5rem; font-weight: bold; margin: 0; }
+                .write-review-btn { background-color: var(--w-primary); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-size: 1rem; font-weight: 500; cursor: pointer; transition: background-color 0.2s; }
+                .write-review-btn:hover { background-color: #334195; }
+                .reviews-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+                @media (min-width: 640px) { .reviews-grid { grid-template-columns: repeat(2, 1fr); gap: 1.5rem; } }
+                @media (min-width: 1024px) { .reviews-grid { grid-template-columns: repeat(3, 1fr); } }
+                .review-card { background-color: var(--w-card-background); border: 1px solid var(--w-border-color); border-radius: 0.5rem; padding: 1.5rem; }
+                .review-card-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+                .review-avatar { width: 40px; height: 40px; border-radius: 50%; background-color: #e9ecef; color: var(--w-text-secondary); display: flex; align-items: center; justify-content: center; font-weight: bold; }
+                .review-name { font-weight: 600; }
+                .review-source { font-size: 0.875rem; color: var(--w-text-secondary); }
+                .review-stars { display: flex; gap: 0.25rem; color: var(--w-accent); margin-bottom: 0.75rem; }
+                .review-text { color: var(--w-text-primary); line-height: 1.5; font-size: 0.95rem; }
+                .no-reviews { text-align: center; padding: 3rem 1rem; border: 2px dashed var(--w-border-color); border-radius: 0.5rem; color: var(--w-text-secondary); }
+                .no-reviews h3 { font-size: 1.25rem; font-weight: 600; margin: 1rem 0 0.5rem; }
+                .modal-overlay { position: fixed; inset: 0; background-color: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
+                .modal-content { background: white; padding: 2rem; border-radius: 0.5rem; width: 100%; max-width: 500px; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+                .modal-close-btn { position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6c757d; }
+                .modal-content h2 { font-size: 1.75rem; margin-top: 0; margin-bottom: 1rem; }
+                .form-group { margin-bottom: 1.5rem; }
+                .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+                .form-group input, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid #ced4da; border-radius: 0.25rem; font-size: 1rem; box-sizing: border-box; }
+                .star-rating-input { display: flex; gap: 0.5rem; flex-direction: row; }
+                .star-rating-input .star { cursor: pointer; color: var(--w-star-inactive); }
+                .star-rating-input .star.selected, .star-rating-input .star.hovered { color: var(--w-accent); }
+            `;
+            const html = `
+                <div class="widget-wrapper">
+                    <header class="widget-header">
+                        <h1>${widget.businessName}</h1>
+                    </header>
+                    
+                    ${totalReviews > 0 ? `
+                    <div class="summary-grid">
+                        <div class="summary-card overall-rating">
+                            <div class="score">${overallRating.toFixed(1)}</div>
+                            <div class="stars-container">${generateStars(overallRating)}</div>
+                            <div class="review-count">Based on ${totalReviews} reviews</div>
+                        </div>
+                        <div class="summary-card">
+                            <ul class="distribution-list">
+                                ${ratingDistribution.map((count, i) => `
+                                    <li class="distribution-item">
+                                        <span>${5-i}</span>
+                                        <span class="star-icon">${generateStars(1, '1em')}</span>
+                                        <div style="width: 100%; background: #e9ecef; border-radius: 2px;"><div style="width: ${(count/totalReviews)*100}%; height: 6px; background: var(--w-accent); border-radius: 2px;"></div></div>
+                                        <span style="width: 30px; text-align: right;">${count}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    </div>` : ''
+                    }
+
+                    <div class="reviews-section">
+                        <div class="reviews-header">
+                            <h2>What People Are Saying</h2>
+                            <button class="write-review-btn">Write a Review</button>
+                        </div>
+                        <div class="reviews-grid">
+                            ${sortedReviews.length > 0 ? sortedReviews.map(review => `
+                                <div class="review-card">
+                                    <div class="review-card-header">
+                                        <div class="review-avatar">${review.name.charAt(0)}</div>
+                                        <div>
+                                            <p class="review-name">${review.name}</p>
+                                            <p class="review-source">${review.source} review</p>
+                                        </div>
+                                    </div>
+                                    <div class="review-stars">${generateStars(review.stars)}</div>
+                                    <p class="review-text">${review.text}</p>
+                                </div>
+                            `).join('') : `
+                                <div class="no-reviews">
+                                    <div style="font-size: 3rem;">
+                                        <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M20 2H4c-1.103 0-2 .897-2 2v18l5.333-4H20c1.103 0 2-.897 2-2V4c0-1.103-.897-2-2-2zm0 14H6.667L4 18V4h16v12z"></path></svg>
+                                    </div>
+                                    <h3>No reviews yet</h3>
+                                    <p>Your widget is ready to collect feedback.</p>
+                                </div>
+                            `}
+                        </div>
                     </div>
-                 `;
-            }
-            reviewsSection.appendChild(reviewsGrid);
-            container.appendChild(reviewsSection);
+                </div>
+            `;
 
-            targetElement.appendChild(container);
+            const shadowRoot = widgetContainer.attachShadow({ mode: 'open' });
+            const styleElement = document.createElement('style');
+            styleElement.textContent = style;
+            const contentElement = document.createElement('div');
+            contentElement.innerHTML = html;
+            shadowRoot.appendChild(styleElement);
+            shadowRoot.appendChild(contentElement);
 
-        } catch (error) {
-            console.error('Failed to render widget:', error);
-            targetElement.innerHTML = `<p style="color: red; font-family: sans-serif;">Error: Could not load widget data.</p>`;
+            shadowRoot.querySelector('.write-review-btn').addEventListener('click', () => {
+                showReviewModal(widget.businessName, shadowRoot);
+            });
         }
-    }
-    
-    function initializeWidgets() {
-        const widgetElements = document.querySelectorAll('review-widget');
-        if (widgetElements.length === 0) {
-            console.warn('No review-widget elements found on this page.');
-            return;
-        }
-        widgetElements.forEach(el => {
-            const widgetId = el.getAttribute('widgetId');
-            if (widgetId) {
-                renderWidget(widgetId);
-            } else {
-                console.error('Review-widget tag is missing widgetId attribute.');
-                el.innerHTML = `<p style="color: red; font-family: sans-serif;">Error: Widget configuration is missing (widgetId).</p>`;
+        
+        function generateStars(rating, size = '1.25em') {
+            let starsHtml = '';
+            for (let i = 0; i < 5; i++) {
+                const isFilled = i < Math.round(rating);
+                starsHtml += `<svg stroke="currentColor" fill="${isFilled ? 'currentColor' : 'none'}" stroke-width="0" viewBox="0 0 24 24" height="${size}" width="${size}" xmlns="http://www.w3.org/2000/svg" style="display: inline-block;"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>`;
             }
-        });
-    }
+            return starsHtml;
+        }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initializeWidgets);
-    } else {
-        initializeWidgets();
-    }
+        function showReviewModal(businessName, shadowRoot) {
+            const modalHTML = `
+                <div class="modal-overlay">
+                    <div class="modal-content">
+                        <button class="modal-close-btn">&times;</button>
+                        <h2>Write a review for ${businessName}</h2>
+                        <form id="review-form">
+                            <div class="form-group">
+                                <label for="name">Your Name</label>
+                                <input type="text" id="name" name="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Rating</label>
+                                <div class="star-rating-input" data-rating="0">
+                                    ${[1,2,3,4,5].map(i => `<div class="star" data-value="${i}">${generateStars(1, '2em')}</div>`).join('')}
+                                </div>
+                                <input type="hidden" name="stars" id="stars" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="text">Review</label>
+                                <textarea id="text" name="text" rows="5" required></textarea>
+                            </div>
+                            <button type="submit" class="write-review-btn">Submit Review</button>
+                        </form>
+                    </div>
+                </div>
+            `;
+            const modalContainer = document.createElement('div');
+            modalContainer.innerHTML = modalHTML;
+            shadowRoot.appendChild(modalContainer);
+
+            const overlay = shadowRoot.querySelector('.modal-overlay');
+            const form = shadowRoot.querySelector('#review-form');
+
+            const closeModal = () => shadowRoot.removeChild(modalContainer);
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay || e.target.classList.contains('modal-close-btn')) {
+                    closeModal();
+                }
+            });
+            
+            const starsContainer = shadowRoot.querySelector('.star-rating-input');
+            const stars = starsContainer.querySelectorAll('.star');
+            const ratingInput = shadowRoot.querySelector('#stars');
+
+            stars.forEach(star => {
+                star.addEventListener('mouseenter', () => {
+                    const rating = star.dataset.value;
+                    stars.forEach(s => s.classList.toggle('hovered', s.dataset.value <= rating));
+                });
+                star.addEventListener('mouseleave', () => {
+                     stars.forEach(s => s.classList.remove('hovered'));
+                });
+                star.addEventListener('click', () => {
+                    const rating = star.dataset.value;
+                    ratingInput.value = rating;
+                    starsContainer.dataset.rating = rating;
+                    stars.forEach(s => s.classList.toggle('selected', s.dataset.value <= rating));
+                });
+            });
+
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const submitButton = form.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+                submitButton.textContent = 'Submitting...';
+
+                const formData = new FormData(form);
+                const data = {
+                    name: formData.get('name'),
+                    stars: parseInt(formData.get('stars'), 10),
+                    text: formData.get('text'),
+                    source: 'Direct',
+                };
+                
+                if (data.stars === 0) {
+                    alert('Please select a star rating.');
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Submit Review';
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${apiBaseUrl}/api/widgets/${widgetId}/reviews`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data),
+                    });
+                    const result = await response.json();
+                    if (!response.ok) {
+                        throw new Error(result.error || 'Failed to submit review.');
+                    }
+                    closeModal();
+                    // Re-fetch and render the widget to show the new review
+                    widgetContainer.shadowRoot.innerHTML = ''; // Clear old content
+                    fetchWidgetData();
+                } catch (error) {
+                    alert(`Error: ${error.message}`);
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Submit Review';
+                }
+            });
+        }
+        
+        fetchWidgetData();
+    });
 })();
-
-    
