@@ -87,7 +87,7 @@
                 .review-name { font-weight: 600; }
                 .review-source { font-size: 0.875rem; color: var(--w-text-secondary); }
                 .review-stars { display: flex; gap: 0.25rem; color: var(--w-accent); margin-bottom: 0.75rem; }
-                .review-text { color: var(--w-text-primary); line-height: 1.5; font-size: 0.95rem; }
+                .review-text { color: var(--w-text-primary); line-height: 1.5; font-size: 0.95rem; width: 100%; height: auto}
                 .no-reviews { text-align: center; padding: 3rem 1rem; border: 2px dashed var(--w-border-color); border-radius: 0.5rem; color: var(--w-text-secondary); }
                 .no-reviews h3 { font-size: 1.25rem; font-weight: 600; margin: 1rem 0 0.5rem; }
                 .modal-overlay { position: fixed; inset: 0; background-color: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
