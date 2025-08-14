@@ -21,7 +21,7 @@ export default function EmbedCodeButton({ widgetId }: { widgetId: string }) {
   const [hasCopiedTag, setHasCopiedTag] = useState(false);
   const [hasCopiedScript, setHasCopiedScript] = useState(false);
   
-  const scriptSrc = `https://cdn.statically.io/gh/ChrisBust/studio/alt-history/public/review-widget.js`;
+  const scriptSrc = `https://cdn.jsdelivr.net/gh/ChrisBust/studio@alt-history/public/review-widget.js`;
   const embedTag = `<review-widget widgetId="${widgetId}"></review-widget>`;
   const scriptTag = `<script src="${scriptSrc}" async defer></script>`;
 
